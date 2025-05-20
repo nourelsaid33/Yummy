@@ -35,6 +35,11 @@ padding: 270px 20px;
 .meal-card,.category-card{
     position: relative;
 }
+
+.badge-tag{
+  background-color: rgb(247, 199, 207);
+  color: rgb(171, 57, 57);
+}
 .layer{
     background-color: rgba(255, 255, 255, 0.674);
     border-radius   : 5px;
@@ -45,7 +50,7 @@ padding: 270px 20px;
    right: 0; 
     opacity         : 0; 
     overflow: hidden;
-    transition: all .7s;
+    transition: all .5s;
 }
 .meal-card:hover .layer,.category-card:hover .layer{ 
     opacity: 1; 
@@ -228,7 +233,6 @@ padding: 270px 20px;
   padding: 0 ;
   margin-top: 0;
   transform: translateY(-60%);
-  
 }
 
 
@@ -236,11 +240,22 @@ padding: 270px 20px;
 @keyframes slideInUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(60px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes slideOutDown {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: .3;
+    transform: translate(-60px,60px);
   }
 }
 
@@ -249,5 +264,10 @@ padding: 270px 20px;
 }
 
 .navbar-nav .nav-item.animate {
-  animation: slideInUp 1s ease forwards;
+  animation: slideInUp 0.4s ease forwards;
 }
+
+.navbar-nav.closing .nav-item {
+  animation: slideOutDown 0.4s ease forwards;
+}
+

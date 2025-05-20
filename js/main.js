@@ -26,7 +26,6 @@ const navItems = document.querySelectorAll(".list_items .nav-item");
   closeIcon.classList.remove("d-none");
   barsIcon.classList.add("d-none");
 
-  // Animate nav items
   navItems.forEach((item, index) => {
     setTimeout(() => {
       item.classList.add("animate");
@@ -35,31 +34,42 @@ const navItems = document.querySelectorAll(".list_items .nav-item");
 });
 
 
-closeIcon.addEventListener("click", function () {
-  menuContainer.classList.remove("active");
-  barsIcon.classList.remove("d-none");
-  closeIcon.classList.add("d-none");
+closeIcon.addEventListener("click", () => {
+  const navList = document.querySelector(".navbar-nav");
 
-  navItems.forEach(item =>
-     item.classList.remove("animate"));
+  
+  navItems.forEach(item => item.classList.remove("animate"));
+
+  
+  navList.classList.add("closing");
+
+  
+  setTimeout(() => {
+    menuContainer.classList.remove("active");
+    barsIcon.classList.remove("d-none");
+    closeIcon.classList.add("d-none");
+
+    
+    navList.classList.remove("closing");
+  },100); 
 });
 
 
 
 navItems.forEach(item => {
   item.addEventListener("click", () => {
+    const navList = document.querySelector(".navbar-nav");
+    navList.classList.add("closing");
+    navItems.forEach(nav => nav.classList.remove("animate"));
+
+    setTimeout(() => {
+      navList.classList.remove("closing");
       menuContainer.classList.remove("active");
       barsIcon.classList.remove("d-none");
       closeIcon.classList.add("d-none");
-      navItems.forEach(nav => nav.classList.remove("animated"));
+    },400);
   });
 });
-
-
-
-
-
-
 
 
 
@@ -80,7 +90,7 @@ var allIngredientDetail=[]
 async function allMealsData(){
   const req = await fetch("https://www.themealdb.com/api/json/v1/1/search.php?s=");
       const response = await req.json();
-       allMeals = response.meals;
+       allMeals = (response.meals).slice(" ", 20);
        displayMeals()
        console.log(allMeals)
 }
@@ -143,8 +153,14 @@ allMealsData()
         }
     }
 
-
-
+    
+  let tags =allMealDetail[0].strTags?.split(",");
+  if (!tags) tags = [];
+  let tagsStr = ``;
+  for (let i = 0; i < tags.length; i++) {
+    tagsStr += `
+    <li class="badge-tag badge mb-2 p-2">${tags[i]}</li>`;
+  }
     cartona+=`
     <div class="d-flex">
     <div class="col-md-5">
@@ -160,6 +176,7 @@ allMealsData()
       <span class="fs-4 mb-1">Recipes: </span "><br>
       <div>${ingredientsList}</div>
        <span class="fs-2 mb-1">Tags:</span>
+       <div>${tagsStr}</div><br>
        <div class="mb-5">
        <button class="btn btn-success" onclick="window.open('${allMealDetail[i].strSource}','_blank')">Source</button>
        <button class="btn btn-danger" onclick="window.open('${allMealDetail[i].strYoutube}','_blank')">Youtube</button>
@@ -171,14 +188,7 @@ allMealsData()
   }
   row.innerHTML=cartona
  }
- 
-
-
-
-
 //&& search ///////////////////////////////////////////////////////////////////////////////////
-
-
 async function searchMeal(){
    const  nameValue = document.getElementById("name").value;
    const letterValue = document.getElementById("letter").value;
@@ -199,7 +209,7 @@ async function searchMeal(){
   try {
     const req = await fetch(url);
     const response = await req.json();
-    allSearchMeal = response.meals; 
+    allSearchMeal = (response.meals).slice(" ", 20); 
     displaySearchData();
     console.log(allSearchMeal)
   } catch (error) {
@@ -277,11 +287,7 @@ async function searchDetails(word){
   }catch(error){
          console.error(error)
   }
-
-  
-  
- }
-
+}
  function displaySearchDetail(){
   var cartona=``
   for(var i=0 ; i< allSearchDetail.length; i++){
@@ -295,6 +301,14 @@ async function searchDetails(word){
         ingredientsList += `<li class="badge bg-secondary m-1 p-2">${measure} ${ingredient}</li>`;
       }
     }
+
+    let tags =allSearchDetail[0].strTags?.split(",");
+     if (!tags) tags = [];
+     let tagsStr = ``;
+      for (let i = 0; i < tags.length; i++) {
+       tagsStr += `
+    <li class="badge-tag badge mb-2 p-2">${tags[i]}</li>`;
+  }
 
 
 
@@ -313,6 +327,7 @@ async function searchDetails(word){
        <span class="fs-4 mb-1">Recipes:</span "><br>
        <div> ${ingredientsList}</div>
        <span class="fs-2 mb-1">Tags:</span>
+       <div>${tagsStr}</div>
        <div class="mb-5">
        <button class="btn btn-success" onclick="window.open('${allSearchDetail[i].strSource}','_blank')">Source</button>
        <button class="btn btn-danger" onclick="window.open('${allSearchDetail[i].strYoutube}','_blank')">Youtube</button>
@@ -330,7 +345,7 @@ async function searchDetails(word){
 async function allCategoriesData(){
   const req = await fetch("https://www.themealdb.com/api/json/v1/1/categories.php");
   const response = await req.json();
-   allCategories = response.categories;
+   allCategories = (response.categories).slice(" ", 20);
    displayCategories()
   console.log(allCategories);
 }
@@ -343,7 +358,7 @@ function displayCategories(){
       <div class="category-card" data-category="${allCategories[i].strCategory}">
              <img src="${allCategories[i].strCategoryThumb}" alt="" class="meal-img w-100 rounded-2"/>
               <div class="layer">
-               <h3 class="text-center pt-5 mt-5">${allCategories[i].strCategory}</h3>
+               <h3 class="text-center pt-1 mt-5">${allCategories[i].strCategory}</h3>
                <p class="text-center">${allCategories[i].strCategoryDescription.split(' ').slice(0,20).join(' ')}</p>
               </div>
        </div>
@@ -373,7 +388,7 @@ async function allMealsCategory(word){
   try{
   const req = await fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?c=${word}`);
   const response = await req.json();
-   allMealsCategories = response.meals;
+   allMealsCategories = (response.meals).slice(" ", 20);
    displayAllMealCategory()
   console.log(allMealsCategories);
   }catch(error){
@@ -441,9 +456,13 @@ function displayAllMealCategory(){
          ingredientsList +=`
           <div class="badge bg-info m-1 p-2">${measure} ${ingredient}</div>`
       }
-    }
-
-
+    } let tags =allCategoryDetail[0].strTags?.split(",");
+  if (!tags) tags = [];
+  let tagsStr = ``;
+  for (let i = 0; i < tags.length; i++) {
+    tagsStr += `
+    <li class="badge-tag badge mb-2 p-2">${tags[i]}</li>`;
+  }
 
     cartona+=`
     <div class="d-flex">
@@ -460,6 +479,7 @@ function displayAllMealCategory(){
        <span class="fs-4 mb-1">Recipes: </span "><br>
        <div>${ingredientsList}</div>
        <span class="fs-2 mb-1">Tags:</span>
+       <div >${tagsStr}</div>
        <div class="mb-5">
        <button class="btn btn-success" onclick="window.open('${allCategoryDetail[i].strSource}','_blank')">Source</button>
        <button class="btn btn-danger" onclick="window.open('${allCategoryDetail[i].strYoutube}','_blank')">Youtube</button>
@@ -475,7 +495,7 @@ function displayAllMealCategory(){
 async function allAreasData(){
 const req = await fetch("https://www.themealdb.com/api/json/v1/1/list.php?a=list");
   const response = await req.json();
-   allAreas = response.meals;
+   allAreas = (response.meals).slice(" ", 20);
   displayAllAreas()
 }
 
@@ -515,7 +535,7 @@ async function allAreaMeals(word){
   try{
   const req = await fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?a=${word}`);
   const response = await req.json();
-   allAreasMeals = response.meals;
+   allAreasMeals = (response.meals).slice(" ", 20);
   displayAllAreaMeals()
   console.log(allAreasMeals);
   }catch(error){
@@ -585,9 +605,13 @@ async function areaDetails(word){
          ingredientsList +=`
           <div class="badge bg-info m-1 p-2">${measure} ${ingredient}</div>`
             }
-    }
-
-
+    } let tags = allAreaDetail[0].strTags?.split(",");
+  if (!tags) tags = [];
+  let tagsStr = ``;
+  for (let i = 0; i < tags.length; i++) {
+    tagsStr += `
+    <li class="badge-tag badge mb-2 p-2">${tags[i]}</li>`;
+  }
 
     cartona+=`
     <div class="d-flex">
@@ -601,8 +625,10 @@ async function areaDetails(word){
        <p class="gx-0">${allAreaDetail[i].strInstructions}</p>
        <span class="fs-2 mb-1">Area: ${allAreaDetail[i].strArea}</span "> <br>
       <span class="fs-2 mb-1">Category: ${allAreaDetail[i].strCategory}</span "> <br>
-       <span class="fs-2 mb-1">Tags:</span>
+       <span class="fs-2 mb-1">Recipes:</span>
        <div>${ ingredientsList}</div>
+       <span class="fs-2 mb-1">Tags:</span>
+       <div>${tagsStr}</div>
        <div class="mb-5">
        <button class="btn btn-success" onclick="window.open('${allAreaDetail[i].strSource}','_blank')">Source</button>
        <button class="btn btn-danger" onclick="window.open('${allAreaDetail[i].strYoutube}','_blank')">Youtube</button>
@@ -619,7 +645,7 @@ async function areaDetails(word){
 async function allIngredientsData(){
 const req = await fetch("https://www.themealdb.com/api/json/v1/1/list.php?i=list");
   const response = await req.json();
-   allIngredients = response.meals;
+   allIngredients = (response.meals).slice(" ", 20);
   displayAllIngredients()
 }
 
@@ -651,14 +677,11 @@ function displayAllIngredients(){
 }
 }
 
-
-
-
 async function allIngredientMeals(word){
   try{
   const req = await fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?i=${word}`);
   const response = await req.json();
-   allIngredientsMeals = response.meals;
+   allIngredientsMeals = (response.meals).slice(" ", 20);
   displayAllIngredientMeals()
   console.log(allIngredientsMeals);
   }catch(error){
@@ -719,10 +742,8 @@ function displayAllIngredientMeals(){
   var cartona=``
   for(var i=0 ; i<allIngredientDetail.length; i++){
 
- 
-
 var ingredientsList = ``;
-    
+   
     
     for (var j = 1; j <= 20; j++) {
       var ingredient = allIngredientDetail[i][`strIngredient${j}`];
@@ -732,8 +753,14 @@ var ingredientsList = ``;
          ingredientsList +=`
           <div class="badge bg-info m-1 p-2">${measure} ${ingredient}</div>`
             }
-    }
-
+            
+    } let tags =allIngredientDetail [0].strTags?.split(",");
+  if (!tags) tags = [];
+  let tagsStr = ``;
+  for (let i = 0; i < tags.length; i++) {
+    tagsStr += `
+    <li class="badge-tag badge mb-2 p-2">${tags[i]}</li>`;
+  }
     cartona+=`
     <div class="d-flex">
     <div class="col-md-5">
@@ -749,6 +776,7 @@ var ingredientsList = ``;
       <span class="fs-4 mb-1">Recipes: </span "><br>
       <div>${ingredientsList}</div>
        <span class="fs-2 mb-1">Tags:</span>
+       <div>${tagsStr}</div>
        <div class="mb-5">
        <button class="btn btn-success" onclick="window.open('${allIngredientDetail[i].strSource}','_blank')">Source</button>
        <button class="btn btn-danger" onclick="window.open('${allIngredientDetail[i].strYoutube}','_blank')">Youtube</button>
